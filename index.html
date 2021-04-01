@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Synchronize MapView and SceneView | Sample | ArcGIS API for JavaScript 4.18</title>
+
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        font-family: Arial;
+        overflow: hidden;
+      }
+
+    /* Header/Logo Title */
+    .header {
+        padding: 1px;
+        text-align: center;
+        background: #1abc9c;
+        color: white;
+        font-size: 10px;
+        height: 7%;
+    }
+
+    .table {
+        padding: 1px;
+        text-align: center;
+        background: #040104;
+        color: white;
+        font-size: 10px;
+        height: 8%;
+        width: 100%;
+    }
+
+    table {
+        padding: 1px;
+        width: 100%;
+        outline: ivory;
+    }
+
+    td {
+         border: 1px solid ivory;
+    }
+
+      /* #createSlideDiv {
+        background-color: white;
+        opacity: 0.9;
+        color: black;
+        padding: 6px;
+      } */
+
+      #paneDiv {
+        padding: 12px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid white;
+        color: black;
+      }
+
+      #slidesDiv{
+        background-color: white;
+        opacity: 0.9;
+        color: black;
+        padding: 10px;
+        visibility: hidden;
+        bottom: 20px;
+        overflow-y: auto;
+        text-align: center;
+        height: 260px;
+        width: 160px;
+      }
+
+      #slidesDiv .slide{
+        /* Show cursor as pointer when on a slide */
+        cursor: pointer;
+        margin-bottom: 6px;
+      }
+
+      #slidesDiv .slide .title{
+        /* Center the title text */
+        text-align: center;
+      }
+      /* Draw active slide with a nice border around the thumbnail */
+
+      #slidesDiv .slide.active img {
+        box-shadow: 0px 0px 12px black;
+        border-style: solid;
+        border-width: thin;
+        border-color: black;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.18/"></script>
+
+    <script>
+      require(["esri/Map", 
+      "esri/views/MapView", 
+      "esri/views/SceneView",
+      "esri/widgets/LayerList",
+      "esri/layers/PointCloudLayer",
+      "esri/WebScene",
+        "esri/webscene/Slide",
+        "esri/smartMapping/renderers/color",
+        "esri/smartMapping/renderers/type",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/core/promiseUtils"], function (Map, MapView, SceneView,
+        LayerList, PointCloudLayer,
+        WebScene, Slide, colorRendererCreator, 
+        typeRendererCreator, Legend,
+        Expand, promiseUtils) {
+
+        // var map = new Map({
+        //   basemap: "satellite"
+        // });
+
+        // var pcLayer = new PointCloudLayer({
+        //   url: "https://tiles.arcgis.com/tiles/V4Rx2DXlIHdEvTZA/arcgis/rest/services/FAU_RGB/SceneServer"
+        // });
+        // map.add(pcLayer);
+
+        var scene2017 = new WebScene({
+          portalItem: {
+            // autocasts as new PortalItem()
+            id: "b866fc088fa640cca41e963b96130cdf"
+          }
+        });
+
+        // var view1 = new SceneView({
+        //   container: "view1Div",
+        //   map: map
+        // });
+
+        var scene2007 = new WebScene({
+          portalItem: {
+            // autocasts as new PortalItem()
+            id: "8749637ba96444c3b7c29e089fc4a866"
+          }
+        });
+
+        /*********************************************************************
+         * Reference the WebScene in a SceneView instance.
+         *********************************************************************/
+        var view1 = new SceneView({
+          map: scene2007,
+          container: "view1Div",
+          popup: {
+            defaultPopupTemplateEnabled: true // activate popup with defaut template
+          }
+        });
+
+        // view1.ui.add(["slidesDiv"], "top-right");
+
+        var view2 = new SceneView({
+          map: scene2017,
+          container: "view2Div",
+          popup: {
+            defaultPopupTemplateEnabled: true // activate popup with defaut template
+          }
+        });
+
+    
+        const slideExpand = new Expand({
+          view: view2,
+          content: document.getElementById("slidesDiv"),
+          expanded: true
+        });
+        view2.ui.add(slideExpand, "top-right");
+
+        // view2.ui.add(["slidesDiv"], "top-right");
+
+        // scene2007.load().then(function() {
+
+        //     sceneLayer = scene2007.layers.find(function(layer) {
+        //     return layer.title === "FAU 2007 colorized";
+        //     });
+            // sceneLayer.outFields = ["INTENSITY", "ELEVATION"];
+
+        //     view1.whenLayerView(sceneLayer).then(function (layerView) {
+        //     sceneLayerView = layerView;
+        //     queryDiv.style.display = "block";
+        //     });
+        // });
+
+        // scene2017.load().then(function() {
+
+        //     sceneLayer = scene2017.layers.find(function(layer) {
+        //     return layer.title === "FAU 2017 colorized";
+        //     });
+            // sceneLayer.outFields = ["INTENSITY", "ELEVATION"];
+
+        //     view2.whenLayerView(sceneLayer).then(function (layerView) {
+        //     sceneLayerView = layerView;
+        //     queryDiv.style.display = "block";
+        //     });
+        // });
+
+        // var view2 = new SceneView({
+        //   container: "view2Div",
+        //   map: map,
+        //   constraints: {
+        //     snapToZoom: false
+        //   },
+        //   camera: {
+        //     heading: 210,
+        //     tilt: 78,
+        //     position: {
+        //       x: -80.10118097172179,
+        //       y: 26.374473981136862,
+        //       z: 50.7,
+        //       spatialReference: {
+        //         wkid: 4326
+        //       }
+        //     }
+        //   },
+        //   popup: {
+        //     defaultPopupTemplateEnabled: true // activate popup with defaut template
+        //   }
+        // });
+
+        // view2.ui.add("paneDiv", "bottom-left");
+        // view2.ui.add(
+        //   new Legend({
+        //     view: view2
+        //   }),
+        //   "top-right"
+        // );
+
+        // create a layerlist and expand widget and add to the view
+        const layerList1 = new LayerList({
+          view: view1
+        });
+        const llExpand1 = new Expand({
+          view: view1,
+          content: layerList1,
+          expanded: false
+        });
+        view1.ui.add(llExpand1, "bottom-left");
+
+         // create a layerlist and expand widget and add to the view
+         const layerList2 = new LayerList({
+          view: view2
+        });
+        const llExpand2 = new Expand({
+          view: view2,
+          content: layerList2,
+          expanded: false
+        });
+        view2.ui.add(llExpand2, "bottom-right");
+
+         function createSlideUI(slide, placement) {
+          var slideElement = document.createElement("div");
+          slideElement.id = slide.id;
+          slideElement.classList.add("slide");
+
+          var slidesDiv = document.getElementById("slidesDiv");
+          if (placement === "first") {
+            slidesDiv.insertBefore(slideElement, slidesDiv.firstChild);
+          } else {
+            slidesDiv.appendChild(slideElement);
+          }
+
+          var title = document.createElement("div");
+          title.innerText = slide.title.text;
+          slideElement.appendChild(title);
+
+          var img = new Image();
+          img.src = slide.thumbnail.url;
+          img.title = slide.title.text;
+          slideElement.appendChild(img);
+
+          slideElement.addEventListener("click", function() {
+            var slides = document.querySelectorAll(".slide");
+            Array.from(slides).forEach(function(node) {
+              node.classList.remove("active");
+            });
+
+            slideElement.classList.add("active");
+
+            slide.applyTo(view2);
+          });
+        }
+
+        // var renderersByField = {
+        //   RGB: null,
+        //   CLASS_CODE: null,
+        //   ELEVATION: null,
+        //   INTENSITY: null
+        // };
+
+        /**
+         * Generates renderers based on the input field name. There are four
+         * valid input field names: RGB, CLASS_CODE, ELEVATION, and INTENSITY
+         */
+        // function getRenderer(fieldName) {
+        //   if (renderersByField[fieldName]) {
+        //     return promiseUtils.resolve(renderersByField[fieldName]);
+        //   }
+        //   function responseCallback(response) {
+        //     renderersByField[fieldName] = response.renderer;
+        //     return response.renderer;
+        //   }
+
+        //   if (fieldName === "RGB") {
+        //     return colorRendererCreator
+        //       .createPCTrueColorRenderer({
+        //         layer: pcLayer
+        //       })
+        //       .then(responseCallback);
+        //   }
+        //   if (fieldName === "CLASS_CODE") {
+        //     return typeRendererCreator
+        //       .createPCClassRenderer({
+        //         layer: pcLayer,
+        //         field: fieldName
+        //       })
+        //       .then(responseCallback);
+        //   }
+        //   if (fieldName === "ELEVATION" || "INTENSITY") {
+        //     return colorRendererCreator
+        //       .createPCContinuousRenderer({
+        //         layer: pcLayer,
+        //         field: fieldName
+        //       })
+        //       .then(responseCallback);
+        //   }
+        // }
+
+        // view1.when(function() {
+        
+          // document.getElementById("slidesDiv").style.visibility = "visible";
+
+          // var slides = scene2007.presentation.slides;
+
+          // slides.forEach(createSlideUI);
+
+        //   document.getElementById("createSlideButton").addEventListener("click", function() {
+   
+        //     Slide.createFrom(view1).then(function(slide) {
+        //       slide.title.text = document.getElementById("createSlideTitleInput").value;
+        //       scene.presentation.slides.add(slide);
+        //       createSlideUI(slide, "first");
+        //     });
+        //   });
+        // });
+
+        view2.when(function() {
+        
+        document.getElementById("slidesDiv").style.visibility = "visible";
+
+        var slides = scene2017.presentation.slides;
+
+        slides.forEach(createSlideUI);
+      });
+
+        // view2.when(function() {
+        //   getRenderer("RGB")
+        //     .then(function(renderer) {
+        //       pcLayer.renderer = renderer;
+        //       map.add(pcLayer);
+        //     })
+        //     .catch(function(error) {
+        //       console.log("error: ", error);
+        //     });
+
+        //   var radios = document.getElementsByName("renderer");
+        //   for (var i = 0; i < radios.length; i++) {
+        //     radios[i].addEventListener("change", function(event) {
+        //       var fieldName = event.target.value;
+        //       getRenderer(fieldName)
+        //         .then(function(renderer) {
+        //           pcLayer.renderer = renderer;
+        //         })
+        //         .catch(function(error) {
+        //           console.log("error: ", error);
+        //         });
+        //     });
+        //   }
+        // });
+
+        const views = [view1, view2];
+        let active;
+
+        const sync = (source) => {
+          if (!active || !active.viewpoint || active !== source) {
+            return;
+          }
+
+          for (const view of views) {
+            if (view !== active) {
+              view.viewpoint = active.viewpoint;
+            }
+          }
+        };
+
+        for (const view of views) {
+          view.watch(["interacting", "animation"], () => {
+            active = view;
+            sync(active);
+          });
+
+          view.watch("viewpoint", () => sync(view));
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <!-- <div id="header" style="height: 10%;
+    background-color: black;
+    color: white;
+    text-align: center;">
+        <p>Change Detection in FAU from 2007 till 2017</p>
+    </div> -->
+    <div class="header">
+        <h1>Change Detection in FAU from 2007 till 2017</h1>
+      </div>
+    <div class="table">
+        <table>
+            <tr>
+                <td>
+                    <h1>FAU - 2007</h1>
+                </td>
+                <td>
+                    <h1>FAU - 2017</h1>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="view1Div" style="float: left; width: 50%; height: 85%; border: 1px solid black;"></div>
+    <!-- <div id="createSlideDiv" class="esri-widget">
+        New slide: <input type="text" id="createSlideTitleInput" size="10" />
+        <button id="createSlideButton">Create</button>
+      </div> -->
+
+    <div id="view2Div" style="float: left; width: 49.5%; height: 85%; border: 1px solid black;"></div>
+ 
+    <div id="slidesDiv" class="esri-widget"></div>
+
+    <!-- <div id="paneDiv" class="esri-widget">
+        <p>Visualize point cloud using:</p>
+        <input type="radio" name="renderer" value="RGB" checked /> Original point cloud scan color (Point Cloud RGB
+        Renderer)<br />
+        <input type="radio" name="renderer" value="CLASS_CODE" /> LAS classification (Point Cloud Unique Values
+        Renderer)<br />
+        <input type="radio" name="renderer" value="ELEVATION" /> Elevation mapped on a continuous color scheme (Point
+        Cloud Stretch Renderer)<br />
+        <input type="radio" name="renderer" value="INTENSITY" /> A classification based on intensity values (Point Cloud
+        Stretch Renderer)<br />
+      </div> -->
+  </body>
+</html>
