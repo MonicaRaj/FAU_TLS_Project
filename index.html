@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>Synchronize MapView and SceneView | Sample | ArcGIS API for JavaScript 4.18</title>
+    <title>Visualization of FAU Upgrades over time (2007 to 2017)</title>
 
     <style>
       html,
@@ -13,6 +13,13 @@
         height: 100%;
         font-family: Arial;
         overflow: hidden;
+        outline: none;
+        border: none;
+      }
+
+      div{
+        outline: none;
+        border: none;
       }
 
     /* Header/Logo Title */
@@ -44,13 +51,6 @@
     td {
          border: 1px solid ivory;
     }
-
-      /* #createSlideDiv {
-        background-color: white;
-        opacity: 0.9;
-        color: black;
-        padding: 6px;
-      } */
 
       #paneDiv {
         padding: 12px;
@@ -129,11 +129,6 @@
           }
         });
 
-        // var view1 = new SceneView({
-        //   container: "view1Div",
-        //   map: map
-        // });
-
         var scene2007 = new WebScene({
           portalItem: {
             // autocasts as new PortalItem()
@@ -170,64 +165,7 @@
         });
         view2.ui.add(slideExpand, "top-right");
 
-        // view2.ui.add(["slidesDiv"], "top-right");
-
-        // scene2007.load().then(function() {
-
-        //     sceneLayer = scene2007.layers.find(function(layer) {
-        //     return layer.title === "FAU 2007 colorized";
-        //     });
-            // sceneLayer.outFields = ["INTENSITY", "ELEVATION"];
-
-        //     view1.whenLayerView(sceneLayer).then(function (layerView) {
-        //     sceneLayerView = layerView;
-        //     queryDiv.style.display = "block";
-        //     });
-        // });
-
-        // scene2017.load().then(function() {
-
-        //     sceneLayer = scene2017.layers.find(function(layer) {
-        //     return layer.title === "FAU 2017 colorized";
-        //     });
-            // sceneLayer.outFields = ["INTENSITY", "ELEVATION"];
-
-        //     view2.whenLayerView(sceneLayer).then(function (layerView) {
-        //     sceneLayerView = layerView;
-        //     queryDiv.style.display = "block";
-        //     });
-        // });
-
-        // var view2 = new SceneView({
-        //   container: "view2Div",
-        //   map: map,
-        //   constraints: {
-        //     snapToZoom: false
-        //   },
-        //   camera: {
-        //     heading: 210,
-        //     tilt: 78,
-        //     position: {
-        //       x: -80.10118097172179,
-        //       y: 26.374473981136862,
-        //       z: 50.7,
-        //       spatialReference: {
-        //         wkid: 4326
-        //       }
-        //     }
-        //   },
-        //   popup: {
-        //     defaultPopupTemplateEnabled: true // activate popup with defaut template
-        //   }
-        // });
-
-        // view2.ui.add("paneDiv", "bottom-left");
-        // view2.ui.add(
-        //   new Legend({
-        //     view: view2
-        //   }),
-        //   "top-right"
-        // );
+       
 
         // create a layerlist and expand widget and add to the view
         const layerList1 = new LayerList({
@@ -284,68 +222,7 @@
           });
         }
 
-        // var renderersByField = {
-        //   RGB: null,
-        //   CLASS_CODE: null,
-        //   ELEVATION: null,
-        //   INTENSITY: null
-        // };
-
-        /**
-         * Generates renderers based on the input field name. There are four
-         * valid input field names: RGB, CLASS_CODE, ELEVATION, and INTENSITY
-         */
-        // function getRenderer(fieldName) {
-        //   if (renderersByField[fieldName]) {
-        //     return promiseUtils.resolve(renderersByField[fieldName]);
-        //   }
-        //   function responseCallback(response) {
-        //     renderersByField[fieldName] = response.renderer;
-        //     return response.renderer;
-        //   }
-
-        //   if (fieldName === "RGB") {
-        //     return colorRendererCreator
-        //       .createPCTrueColorRenderer({
-        //         layer: pcLayer
-        //       })
-        //       .then(responseCallback);
-        //   }
-        //   if (fieldName === "CLASS_CODE") {
-        //     return typeRendererCreator
-        //       .createPCClassRenderer({
-        //         layer: pcLayer,
-        //         field: fieldName
-        //       })
-        //       .then(responseCallback);
-        //   }
-        //   if (fieldName === "ELEVATION" || "INTENSITY") {
-        //     return colorRendererCreator
-        //       .createPCContinuousRenderer({
-        //         layer: pcLayer,
-        //         field: fieldName
-        //       })
-        //       .then(responseCallback);
-        //   }
-        // }
-
-        // view1.when(function() {
-        
-          // document.getElementById("slidesDiv").style.visibility = "visible";
-
-          // var slides = scene2007.presentation.slides;
-
-          // slides.forEach(createSlideUI);
-
-        //   document.getElementById("createSlideButton").addEventListener("click", function() {
-   
-        //     Slide.createFrom(view1).then(function(slide) {
-        //       slide.title.text = document.getElementById("createSlideTitleInput").value;
-        //       scene.presentation.slides.add(slide);
-        //       createSlideUI(slide, "first");
-        //     });
-        //   });
-        // });
+       
 
         view2.when(function() {
         
@@ -356,31 +233,7 @@
         slides.forEach(createSlideUI);
       });
 
-        // view2.when(function() {
-        //   getRenderer("RGB")
-        //     .then(function(renderer) {
-        //       pcLayer.renderer = renderer;
-        //       map.add(pcLayer);
-        //     })
-        //     .catch(function(error) {
-        //       console.log("error: ", error);
-        //     });
-
-        //   var radios = document.getElementsByName("renderer");
-        //   for (var i = 0; i < radios.length; i++) {
-        //     radios[i].addEventListener("change", function(event) {
-        //       var fieldName = event.target.value;
-        //       getRenderer(fieldName)
-        //         .then(function(renderer) {
-        //           pcLayer.renderer = renderer;
-        //         })
-        //         .catch(function(error) {
-        //           console.log("error: ", error);
-        //         });
-        //     });
-        //   }
-        // });
-
+       
         const views = [view1, view2];
         let active;
 
@@ -407,15 +260,10 @@
       });
     </script>
   </head>
+
   <body>
-    <!-- <div id="header" style="height: 10%;
-    background-color: black;
-    color: white;
-    text-align: center;">
-        <p>Change Detection in FAU from 2007 till 2017</p>
-    </div> -->
-    <div class="header">
-        <h1>Change Detection in FAU from 2007 till 2017</h1>
+     <div class="header">
+        <h1>Visualization of FAU Upgrades over time (2007 to 2017)</h1>
       </div>
     <div class="table">
         <table>
@@ -430,25 +278,9 @@
         </table>
     </div>
     <div id="view1Div" style="float: left; width: 50%; height: 85%; border: 1px solid black;"></div>
-    <!-- <div id="createSlideDiv" class="esri-widget">
-        New slide: <input type="text" id="createSlideTitleInput" size="10" />
-        <button id="createSlideButton">Create</button>
-      </div> -->
-
+     
     <div id="view2Div" style="float: left; width: 49.5%; height: 85%; border: 1px solid black;"></div>
- 
     <div id="slidesDiv" class="esri-widget"></div>
-
-    <!-- <div id="paneDiv" class="esri-widget">
-        <p>Visualize point cloud using:</p>
-        <input type="radio" name="renderer" value="RGB" checked /> Original point cloud scan color (Point Cloud RGB
-        Renderer)<br />
-        <input type="radio" name="renderer" value="CLASS_CODE" /> LAS classification (Point Cloud Unique Values
-        Renderer)<br />
-        <input type="radio" name="renderer" value="ELEVATION" /> Elevation mapped on a continuous color scheme (Point
-        Cloud Stretch Renderer)<br />
-        <input type="radio" name="renderer" value="INTENSITY" /> A classification based on intensity values (Point Cloud
-        Stretch Renderer)<br />
-      </div> -->
   </body>
+
 </html>
