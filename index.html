@@ -58,7 +58,7 @@
     .table {
         padding: 1px;
         text-align: center;
-        background: #040104;
+        background: #242424;
         color: white;
         font-size: 10px;
         height: 8%;
@@ -80,15 +80,15 @@
 
       #paneDiv {
         padding: 12px;
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: #242424;
         border: 1px solid white;
-        color: black;
+        color: #242424;
       }
 
       #slidesDiv{
-        background-color: white;
+        background-color: #242424;
         opacity: 0.9;
-        color: black;
+        color: white;
         padding: 10px;
         visibility: hidden;
         bottom: 20px;
@@ -111,14 +111,14 @@
       /* Draw active slide with a nice border around the thumbnail */
 
       #slidesDiv .slide.active img {
-        box-shadow: 0px 0px 12px black;
+        box-shadow: 0px 0px 12px #242424;
         border-style: solid;
         border-width: thin;
-        border-color: black;
+        border-color: #242424;
       }
 
       #topbar, #topbar1 {
-        background: #fff;
+        background: #242424;
         padding: 10px;
       }
 
@@ -146,7 +146,8 @@
     </style>    
     
     <!-- ArcGIS JS API -->
-    <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css" />
+    <!-- <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css" /> -->
+     <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/dark/main.css" />
     <script src="https://js.arcgis.com/4.18/"></script>
 
     <script>
@@ -241,7 +242,7 @@
           content: layerList1,
           expanded: false
         });
-        view1.ui.add(llExpand1, "bottom-left");
+        view1.ui.add(llExpand1, "top-left");
 
          // create a layerlist and expand widget and add to the view
          const layerList2 = new LayerList({
@@ -252,24 +253,26 @@
           content: layerList2,
           expanded: false
         });
-        view2.ui.add(llExpand2, "bottom-left");
+        view2.ui.add(llExpand2, "top-left");
 
 
         // get the first layer in the collection of operational layers in the WebMap
           var legend1 = new Legend({
-            view: view1
+            view: view1,
+            style: "card"
           });
 
           const legExpand1 = new Expand({
             view: view2,
             content: legend1,
-            expanded: false
+            expanded: false,
           });
           // Add widget to the bottom right corner of the view
           view1.ui.add(legExpand1, "bottom-left");
 
           var legend2 = new Legend({
-            view: view2
+            view: view2,
+            style: "card"
           });
 
           const legExpand2 = new Expand({
@@ -289,7 +292,8 @@
         const slideExpand = new Expand({
           view: view2,
           content: document.getElementById("slidesDiv"),
-          expanded: true
+          expanded: true,
+          title: "SLIDES"
         });
         view2.ui.add(slideExpand, "bottom-right");
 
@@ -507,11 +511,14 @@
 
   <body>
      <div class="header">
+       <img src="static/FAULogo.png" style="width: 5.5%;
+       float: left;
+       margin-left: 10px;">
         <h4 style="margin: 10px;">Visualization of FAU Upgrades over time (2007 to 2017)
           <i id="about" style="float: right;
           margin-right: 10px; cursor: pointer;
           font-size: larger;" class="fas fa-info-circle"
-          data-toggle="modal" data-target="#aboutModal"></i></h4>
+          data-toggle="modal" data-target="#aboutModal" title="About"></i></h4>
       </div>
 
     <div class="table">
@@ -526,7 +533,8 @@
             </tr>
         </table>
     </div>
-    <div id="view1Div" style="float: left; width: 50%; height: 85%; border: 1px solid black;"></div>
+    <div class="header"></div>
+    <div id="view1Div" style="background-color: #242424;float: left; width: 50%; height: 85%; border: 1px solid #242424;"></div>
      
     <div id="topbar1">
       <button
@@ -543,8 +551,8 @@
       ></button>
     </div>
 
-    <div id="view2Div" style="float: left; width: 49.5%; height: 85%; border: 1px solid black;"></div>
-    <div id="slidesDiv" class="esri-widget"></div>
+    <div id="view2Div" style="background-color: #242424;float: left; width: 50%; height: 85%; border: 1px solid #242424;"></div>
+    <div id="slidesDiv" class="esri-widget"  title="FAU Slides"></div>
    
     <div id="topbar">
       <button
