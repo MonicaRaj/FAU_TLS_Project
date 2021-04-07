@@ -3,7 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>Visualization of FAU Upgrades over time (2007 to 2017)</title>
+    <title>FAU Upgrades</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" 
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" 
+    crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" 
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" 
+    crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" 
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" 
+    crossorigin="anonymous"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/a6e2755b4d.js" 
+            crossorigin="anonymous">
+    </script>
 
     <style>
       html,
@@ -29,7 +51,8 @@
         background: #1abc9c;
         color: white;
         font-size: 10px;
-        height: 7%;
+        /* height: 7%; */
+        vertical-align: center;
     }
 
     .table {
@@ -40,6 +63,7 @@
         font-size: 10px;
         height: 8%;
         width: 100%;
+        margin-bottom: 0;
     }
 
     table {
@@ -50,6 +74,8 @@
 
     td {
          border: 1px solid ivory;
+         padding: 0;
+         vertical-align: center;
     }
 
       #paneDiv {
@@ -90,28 +116,63 @@
         border-width: thin;
         border-color: black;
       }
-    </style>
 
+      #topbar, #topbar1 {
+        background: #fff;
+        padding: 10px;
+      }
+
+      .action-button {
+        font-size: 16px;
+        background-color: transparent;
+        border: 1px solid #d3d3d3;
+        color: #6e6e6e;
+        height: 32px;
+        width: 32px;
+        text-align: center;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+      }
+
+      .action-button:hover,
+      .action-button:focus {
+        background: #0079c1;
+        color: #e4e4e4;
+      }
+
+      .active {
+        background: #0079c1;
+        color: #e4e4e4;
+      }
+    </style>    
+    
+    <!-- ArcGIS JS API -->
     <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css" />
     <script src="https://js.arcgis.com/4.18/"></script>
 
     <script>
       require(["esri/Map", 
+      "esri/widgets/Legend",
       "esri/views/MapView", 
       "esri/views/SceneView",
       "esri/widgets/LayerList",
       "esri/layers/PointCloudLayer",
       "esri/WebScene",
-        "esri/webscene/Slide",
-        "esri/smartMapping/renderers/color",
-        "esri/smartMapping/renderers/type",
-        "esri/widgets/Legend",
-        "esri/widgets/Expand",
-        "esri/core/promiseUtils"], function (Map, MapView, SceneView,
+      "esri/webscene/Slide",
+      "esri/smartMapping/renderers/color",
+      "esri/smartMapping/renderers/type",
+      "esri/widgets/Home",
+      "esri/widgets/Legend",
+      "esri/widgets/Expand",
+      "esri/widgets/DirectLineMeasurement3D",
+      "esri/widgets/AreaMeasurement3D",
+      "esri/core/promiseUtils"], function (Map,Legend, MapView, SceneView,
         LayerList, PointCloudLayer,
         WebScene, Slide, colorRendererCreator, 
-        typeRendererCreator, Legend,
-        Expand, promiseUtils) {
+        typeRendererCreator, Home, Legend,
+        Expand, DirectLineMeasurement3D, 
+        AreaMeasurement3D, promiseUtils) {
+
+        var activeWidget = null;
 
         // var map = new Map({
         //   basemap: "satellite"
@@ -156,16 +217,20 @@
             defaultPopupTemplateEnabled: true // activate popup with defaut template
           }
         });
-
-    
-        const slideExpand = new Expand({
-          view: view2,
-          content: document.getElementById("slidesDiv"),
-          expanded: true
+      
+        var homeBtn1 = new Home({
+          view: view1
         });
-        view2.ui.add(slideExpand, "top-right");
 
-       
+        // Add the home button to the top left corner of the view
+        view1.ui.add(homeBtn1, "top-left");
+
+        var homeBtn2 = new Home({
+          view: view2
+        });
+
+        // Add the home button to the top left corner of the view
+        view2.ui.add(homeBtn2, "top-left");
 
         // create a layerlist and expand widget and add to the view
         const layerList1 = new LayerList({
@@ -187,7 +252,185 @@
           content: layerList2,
           expanded: false
         });
-        view2.ui.add(llExpand2, "bottom-right");
+        view2.ui.add(llExpand2, "bottom-left");
+
+
+        // get the first layer in the collection of operational layers in the WebMap
+          var legend1 = new Legend({
+            view: view1
+          });
+
+          const legExpand1 = new Expand({
+            view: view2,
+            content: legend1,
+            expanded: false
+          });
+          // Add widget to the bottom right corner of the view
+          view1.ui.add(legExpand1, "bottom-left");
+
+          var legend2 = new Legend({
+            view: view2
+          });
+
+          const legExpand2 = new Expand({
+            view: view2,
+            content: legend2,
+            expanded: false
+          });
+          // Add widget to the bottom right corner of the view
+          view2.ui.add(legExpand2, "bottom-left");
+
+        // add the toolbar for the measurement widgets
+        view2.ui.add("topbar", "top-right");
+
+        // add the toolbar for the measurement widgets
+        view1.ui.add("topbar1", "top-right");
+          
+        const slideExpand = new Expand({
+          view: view2,
+          content: document.getElementById("slidesDiv"),
+          expanded: true
+        });
+        view2.ui.add(slideExpand, "bottom-right");
+
+
+        document
+          .getElementById("distanceButton")
+          .addEventListener("click", function () {
+            setActiveWidget(null);
+            if (!this.classList.contains("active")) {
+              setActiveWidget("distance");
+            } else {
+              setActiveButton(null);
+            }
+          });
+
+        document
+          .getElementById("areaButton")
+          .addEventListener("click", function () {
+            setActiveWidget(null);
+            if (!this.classList.contains("active")) {
+              setActiveWidget("area");
+            } else {
+              setActiveButton(null);
+            }
+          });
+
+        function setActiveWidget(type) {
+          switch (type) {
+            case "distance":
+              activeWidget = new DirectLineMeasurement3D({
+                view: view2
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget.viewModel.newMeasurement();
+
+              view2.ui.add(activeWidget, "top-right");
+              setActiveButton(document.getElementById("distanceButton"));
+              break;
+            case "area":
+              activeWidget = new AreaMeasurement3D({
+                view: view2
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget.viewModel.newMeasurement();
+
+              view2.ui.add(activeWidget, "top-right");
+              setActiveButton(document.getElementById("areaButton"));
+              break;
+            case null:
+              if (activeWidget) {
+                view2.ui.remove(activeWidget);
+                activeWidget.destroy();
+                activeWidget = null;
+              }
+              break;
+          }
+        }
+
+        function setActiveButton(selectedButton) {
+          // focus the view to activate keyboard shortcuts for sketching
+          view2.focus();
+          var elements = document.getElementsByClassName("active");
+          for (var i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("active");
+          }
+          if (selectedButton) {
+            selectedButton.classList.add("active");
+          }
+        }
+
+        // For View 1 - Measure
+
+        document
+          .getElementById("distanceButton1")
+          .addEventListener("click", function () {
+            setActiveWidget1(null);
+            if (!this.classList.contains("active")) {
+              setActiveWidget1("distance");
+            } else {
+              setActiveButton1(null);
+            }
+          });
+
+        document
+          .getElementById("areaButton1")
+          .addEventListener("click", function () {
+            setActiveWidget1(null);
+            if (!this.classList.contains("active")) {
+              setActiveWidget1("area");
+            } else {
+              setActiveButton1(null);
+            }
+          });
+
+        function setActiveWidget1(type) {
+          switch (type) {
+            case "distance":
+              activeWidget = new DirectLineMeasurement3D({
+                view: view1
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget.viewModel.newMeasurement();
+
+              view1.ui.add(activeWidget, "top-right");
+              setActiveButton(document.getElementById("distanceButton1"));
+              break;
+            case "area":
+              activeWidget = new AreaMeasurement3D({
+                view: view1
+              });
+
+              // skip the initial 'new measurement' button
+              activeWidget.viewModel.newMeasurement();
+
+              view1.ui.add(activeWidget, "top-right");
+              setActiveButton(document.getElementById("areaButton1"));
+              break;
+            case null:
+              if (activeWidget) {
+                view1.ui.remove(activeWidget);
+                activeWidget.destroy();
+                activeWidget = null;
+              }
+              break;
+          }
+        }
+
+        function setActiveButton(selectedButton) {
+          // focus the view to activate keyboard shortcuts for sketching
+          view1.focus();
+          var elements = document.getElementsByClassName("active");
+          for (var i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("active");
+          }
+          if (selectedButton) {
+            selectedButton.classList.add("active");
+          }
+        }
 
          function createSlideUI(slide, placement) {
           var slideElement = document.createElement("div");
@@ -231,6 +474,7 @@
         var slides = scene2017.presentation.slides;
 
         slides.forEach(createSlideUI);
+
       });
 
        
@@ -263,24 +507,88 @@
 
   <body>
      <div class="header">
-        <h1>Visualization of FAU Upgrades over time (2007 to 2017)</h1>
+        <h4 style="margin: 10px;">Visualization of FAU Upgrades over time (2007 to 2017)
+          <i id="about" style="float: right;
+          margin-right: 10px; cursor: pointer;
+          font-size: larger;" class="fas fa-info-circle"
+          data-toggle="modal" data-target="#aboutModal"></i></h4>
       </div>
+
     <div class="table">
         <table>
             <tr>
                 <td>
-                    <h1>FAU - 2007</h1>
+                    <h4>FAU - 2007</h4>
                 </td>
                 <td>
-                    <h1>FAU - 2017</h1>
+                    <h4>FAU - 2017</h4>
                 </td>
             </tr>
         </table>
     </div>
     <div id="view1Div" style="float: left; width: 50%; height: 85%; border: 1px solid black;"></div>
      
+    <div id="topbar1">
+      <button
+        class="action-button esri-icon-measure-line"
+        id="distanceButton1"
+        type="button"
+        title="Measure distance between two points"
+      ></button>
+      <button
+        class="action-button esri-icon-measure-area"
+        id="areaButton1"
+        type="button"
+        title="Measure area"
+      ></button>
+    </div>
+
     <div id="view2Div" style="float: left; width: 49.5%; height: 85%; border: 1px solid black;"></div>
     <div id="slidesDiv" class="esri-widget"></div>
+   
+    <div id="topbar">
+      <button
+        class="action-button esri-icon-measure-line"
+        id="distanceButton"
+        type="button"
+        title="Measure distance between two points"
+      ></button>
+      <button
+        class="action-button esri-icon-measure-area"
+        id="areaButton"
+        type="button"
+        title="Measure area"
+      ></button>
+    </div>
+
+
+      <!-- Modal -->
+      <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header" style="background-color: #1abc9c;">
+              <h5 class="modal-title" style="color:white" id="exampleModalLabel">Visualizing the FAU Upgrades over time</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" style="text-align: justify;">
+              As time passes by, various advancements emerge out in the world. 
+              It would be really great if one can visualize the upgrades of a particular area over time effectively and accurately. 
+              Currently, there are very few applications that allows users to visualize the changes between two different years via lidar point cloud data. It will be easier to figure out the updates that have been made over years when visualizing those on a live mapping application.
+              <br>
+              <br>
+              The primary objective of the project is to develop a web application that lets users to visualize and interact with the aerial point cloud data efficiently for FAU campus at two different years (2007 and 2017) side by side. 
+              The upgrades that have been carried out in FAU from 2007 to 2017 can be seen precisely by point cloud data after creating intensity map, elevation map and colorized point cloud map by height. 
+              The web application will also allow users to find the visual differences between the features of those two years and directly go to the pre-defined spots within the FAU campus. 
+              Also, it lets users to measure line distances and area calculation in three dimensions accurately.
+            </div>  
+            <div class="modal-footer">
+              <button type="button" style="background-color: #040104;" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
   </body>
 
 </html>
