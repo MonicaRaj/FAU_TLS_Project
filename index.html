@@ -231,7 +231,6 @@
 
                     document.onmousemove = onMouseMove;
                     document.onmouseup = () => {
-                        //console.log("mouse up");
                         document.onmousemove = document.onmouseup = null;
                     }
                 }
@@ -597,9 +596,9 @@
 
   <body>
      <div class="header">
-       <img src="static/FAULogo.png" style="width: 5.5%;
+       <a href="https://www.fau.edu" target="_blank"><img src="static/FAULogo.png" style="width: 5.5%;
        float: left;
-       margin-left: 10px;">
+       margin-left: 10px;"></a>
         <h4 style="margin: 10px;">Visualization of FAU Upgrades over time (2007 to 2017)
           <i id="about" style="float: right;
           margin-right: 10px; cursor: pointer;
